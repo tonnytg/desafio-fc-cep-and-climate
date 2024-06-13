@@ -1,76 +1,37 @@
 package domain
 
-import "errors"
-
-var (
-	ErrLocationNotFound = errors.New("Location not found")
+import (
+	"fmt"
+	"log"
 )
 
 type Location struct {
-	CEP        string
-	Celsius    float64
-	Fahrenheit float64
-	Kelvin     float64
+	CEP   string  `json:"cep"`
+	City  string  `json:"city"`
+	TempC float64 `json:"temp_c"`
+	TempF float64 `json:"temp_f"`
+	TempK float64 `json:"temp_k"`
 }
 
-type LocationInterface interface {
-	GetCEP(cep string) (Location, error)
-	SetCEP(cep string) error
-	GetCelsius(cep string) float64
-	GetFahrenheit(cep string) float64
-	GetKelvin(cep string) float64
-	SetCelsius(cep string, celsius float64) error
-	SetFahrenheit(cep string, fahrenheit float64) error
-	SetKelvin(cep string, kelvin float64) error
-}
+func NewLocation(cep string) *Location {
 
-func NewLocation(cep string) (*Location, error) {
+	l := &Location{}
 
-	if len(cep) != 8 {
-		return nil, ErrLocationNotFound
+	err := l.SetCEP(cep)
+	if err != nil {
+		return nil
 	}
 
-	return &Location{
-		CEP: cep,
-	}, nil
-}
-
-func (l *Location) GetCEP(cep string) (Location, error) {
-	if l.CEP != cep {
-		return Location{}, ErrLocationNotFound
-	}
-
-	return *l, nil
+	return l
 }
 
 func (l *Location) SetCEP(cep string) error {
+
+	if len(cep) != 8 {
+		log.Printf("CEP inválido")
+		return fmt.Errorf("CEP inválido")
+	}
 	l.CEP = cep
-	return nil
-}
 
-func (l *Location) GetCelsius(cep string) float64 {
-	return l.Celsius
-}
-
-func (l *Location) GetFahrenheit(cep string) float64 {
-	return l.Fahrenheit
-}
-
-func (l *Location) GetKelvin(cep string) float64 {
-	return l.Kelvin
-}
-
-func (l *Location) SetCelsius(cep string, celsius float64) error {
-	l.Celsius = celsius
-	return nil
-}
-
-func (l *Location) SetFahrenheit(cep string, fahrenheit float64) error {
-	l.Fahrenheit = fahrenheit
-	return nil
-}
-
-func (l *Location) SetKelvin(cep string, kelvin float64) error {
-	l.Kelvin = kelvin
 	return nil
 }
