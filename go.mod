@@ -1,3 +1,3 @@
-module github.com/tonnytg/desafio-fc-cep-and-climate.git
+module github.com/tonnytg/desafio-fc-cep-and-climate
 
 go 1.22.2

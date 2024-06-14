@@ -1,7 +1,8 @@
-all: build run
+all: test
+	docker-compose up --build -d
 
-build:
-	docker build -t cloudrun:latest .
+down:
+	docker-compose down
 
-run:
-	docker run -d -p 8080:8080 -e WEATHER_API_KEY cloudrun:latest
+test:
+	go test ./...

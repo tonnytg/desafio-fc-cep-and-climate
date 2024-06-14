@@ -1,0 +1,9 @@
+
+services:
+  backend:
+    build: .
+    container_name: backend-desafio-cep-weather
+    environment:
+      - WEATHER_API_KEY
+    ports:
+      - 8080:8080
