@@ -31,6 +31,10 @@ func (l *Location) GetCEP() string {
 	return l.CEP
 }
 
+func (l *Location) GetCity() string {
+	return l.City
+}
+
 func (l *Location) GetTempC() float64 {
 	return l.TempC
 }
@@ -53,9 +57,19 @@ func (l *Location) SetCEP(cep string) error {
 	return nil
 }
 
-func (l *Location) SetTempC(celcius float64) error {
+func (l *Location) SetCity(city string) error {
 
-	l.TempC = celcius
+	if len(city) < 1 {
+		return fmt.Errorf(" invalid city")
+	}
+
+	l.City = city
+	return nil
+}
+
+func (l *Location) SetTempC(celsius float64) error {
+
+	l.TempC = celsius
 
 	return nil
 }
@@ -70,9 +84,9 @@ func (l *Location) setTempK() error {
 	return nil
 }
 
-func (l *Location) SetTemperatures(celcius float64) error {
+func (l *Location) SetTemperatures(celsius float64) error {
 
-	err := l.SetTempC(celcius)
+	err := l.SetTempC(celsius)
 	if err != nil {
 		return err
 	}
