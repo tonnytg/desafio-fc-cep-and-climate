@@ -4,6 +4,8 @@
 
 create `.env` and set you `WEATHER_API_KEY`
 
+Get API KEY in https://www.weatherapi.com/my/
+
 ## External API Endpoins used
 
 To get Cep and details

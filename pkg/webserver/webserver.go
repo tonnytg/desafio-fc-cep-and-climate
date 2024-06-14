@@ -2,26 +2,81 @@ package webserver
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/tonnytg/desafio-fc-cep-and-climate/internal/domain"
 	"log"
 	"net/http"
 	"os"
 )
 
-func handlerIndex(w http.ResponseWriter, r *http.Request) {
+type ErrorMessage struct {
+	Message string `json:"message"`
+}
+
+func ReplyRequest(w http.ResponseWriter, statusCode int, msg string) error {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	msg := ErrorMessage{Message: "success"}
-	err := json.NewEncoder(w).Encode(msg)
+
+	replyMessage := ErrorMessage{Message: msg}
+
+	err := json.NewEncoder(w).Encode(replyMessage)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(statusCode)
 		log.Println("")
+		return fmt.Errorf("error to try reply request")
 	}
-	return
+
+	return nil
 }
 
-type ErrorMessage struct {
-	Message string `json:"message"`
+func handlerIndex(w http.ResponseWriter, r *http.Request) {
+
+	var data struct {
+		CEP string `json:"cep"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		_ = ReplyRequest(w, http.StatusBadRequest, "no zipcode provided")
+		return
+	}
+
+	log.Println("CEP API:", data.CEP)
+
+	l, err := domain.NewLocation(data.CEP)
+	if err != nil {
+		log.Println(err)
+		_ = ReplyRequest(w, http.StatusBadRequest, "no zipcode provided")
+		return
+	}
+
+	repo := domain.NewLocationRepository()
+	serv := domain.NewLocationService(repo)
+
+	serv.Execute(l)
+
+	responseData := struct {
+		TempC float64 `json:"temp_c"`
+		TempF float64 `json:"temp_f"`
+		TempK float64 `json:"temp_k"`
+	}{
+		l.GetTempC(),
+		l.GetTempF(),
+		l.GetTempK(),
+	}
+
+	byteResponseData, err := json.Marshal(responseData)
+	if err != nil {
+		_ = ReplyRequest(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(byteResponseData)
+
+	return
 }
 
 func Start() {

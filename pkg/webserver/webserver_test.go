@@ -26,7 +26,7 @@ func TestWebserverGET(t *testing.T) {
 	}
 
 	expected := Response{
-		Message: "success",
+		Message: "no zipcode provided",
 	}
 
 	var received Response
