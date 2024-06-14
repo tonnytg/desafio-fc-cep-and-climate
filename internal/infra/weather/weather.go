@@ -1,12 +1,13 @@
 package weather
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
-	"strings"
 )
 
 type Weather struct {
@@ -61,27 +62,50 @@ func Get(city string) (*Weather, error) {
 
 	apiKey := os.Getenv("WEATHER_API_KEY")
 
-	city = strings.ReplaceAll(city, " ", "%20")
+	// convert São Paulo to S%C3%A3o%20Paulo
+	city = url.QueryEscape(city)
 
-	url := fmt.Sprintf("https://api.weatherapi.com/v1/current.json?key=%s&q=\"%s\"", apiKey, city)
-	response, err := http.Get(url)
+	url := fmt.Sprintf("https://api.weatherapi.com/v1/current.json?key=%s&q=%s", apiKey, city)
+	method := "GET"
+
+	// Create a custom HTTP client with a Transport that ignores SSL verification
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		log.Println("error to get weather:", err)
+		fmt.Println(err)
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		fmt.Println("can not find weather for city")
+		return nil, fmt.Errorf("can not find weather for city")
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
-	defer response.Body.Close()
+	weather := &Weather{}
 
-	var w Weather
-
-	if response.StatusCode != 200 {
-		return nil, fmt.Errorf("error status code: %d", response.StatusCode)
-	}
-
-	err = json.NewDecoder(response.Body).Decode(&w)
+	err = json.Unmarshal(body, weather)
 	if err != nil {
-		return nil, fmt.Errorf("error to decode json: %v", err)
+		fmt.Println(err)
+		return nil, err
 	}
 
-	return &w, nil
+	return weather, nil
 }

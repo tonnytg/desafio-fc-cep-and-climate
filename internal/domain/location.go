@@ -2,7 +2,6 @@ package domain
 
 import (
 	"fmt"
-	"log"
 )
 
 type Location struct {
@@ -28,8 +27,7 @@ func NewLocation(cep string) *Location {
 func (l *Location) SetCEP(cep string) error {
 
 	if len(cep) != 8 {
-		log.Printf("CEP inválido")
-		return fmt.Errorf("CEP inválido")
+		return fmt.Errorf("invalid zipcode")
 	}
 	l.CEP = cep
 
