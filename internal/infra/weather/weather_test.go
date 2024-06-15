@@ -2,6 +2,7 @@ package weather_test
 
 import (
 	"github.com/tonnytg/desafio-fc-cep-and-climate/internal/infra/weather"
+	"log"
 	"os"
 	"strings"
 	"testing"
@@ -15,9 +16,15 @@ func TestWeatherGet(t *testing.T) {
 	}
 
 	env := string(b)
+	log.Println("env:", env)
 	list := strings.Split(env, "=")
 	if list[0] == "WEATHER_API_KEY" {
-		_ = os.Setenv(list[0], list[1])
+
+		secret := strings.Trim(list[1], "\"")
+		err = os.Setenv(list[0], secret)
+		if err != nil {
+			log.Println("error to set env:", err)
+		}
 	}
 
 	wc, err := weather.GetWeather("São Paulo")
