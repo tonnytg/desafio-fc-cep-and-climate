@@ -13,6 +13,7 @@ This is not a valid key
 ## How to use
 
 create `.env` and set you `WEATHER_API_KEY`
+if go test failed in weather, check if .env has % o end file
 
 Get API KEY in https://www.weatherapi.com/my/
 
