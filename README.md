@@ -5,7 +5,8 @@
 curl -X POST https://desafio-fc-cep-and-climate-6ehcgk4t5a-uc.a.run.app -d '{"cep":"29902555"}'
 
 ## Cloud Run Deploy
-
+WARNING: has API KEY on IMG but it is only for documentation.
+This is not a valid key
 ![deploy-cloudrun.png](deploy-cloudrun.png)
 
 
