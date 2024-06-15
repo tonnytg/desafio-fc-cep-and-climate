@@ -16,5 +16,15 @@ Content-Type: application/json
 Accept: application/json
 
 {
+  "cep": "a"
+}
+
+
+###
+POST http://localhost:8080
+Content-Type: application/json
+Accept: application/json
+
+{
   "cep": "29902555"
 }
