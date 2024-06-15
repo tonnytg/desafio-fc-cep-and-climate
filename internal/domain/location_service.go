@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"github.com/tonnytg/desafio-fc-cep-and-climate/internal/infra/cep"
 	"github.com/tonnytg/desafio-fc-cep-and-climate/internal/infra/weather"
 	"log"
@@ -18,18 +19,28 @@ func NewLocationService(repo LocationRepositoryInterface) *LocationService {
 	}
 }
 
-func (s *LocationService) Execute(l *Location) {
+func (s *LocationService) Execute(l *Location) error {
 
-	data := s.repo.Get(l.CEP)
-	log.Println("service received:", data)
+	//data := s.repo.Get(l.CEP)
+	//log.Println("service received:", data)
 
-	city, _ := cep.GetCity(l.GetCEP())
+	city, err := cep.GetCity(l.GetCEP())
+	if err != nil {
+		log.Println("error to get cep:", l.GetCEP())
+		return fmt.Errorf("404")
+	}
+
+	if city == "" {
+		log.Println("error to get cep:", l.GetCEP())
+		return fmt.Errorf("404")
+	}
+
 	_ = l.SetCity(city)
 
 	wc, err := weather.GetWeather(l.GetCity())
 	if err != nil {
 		log.Println("error to execute and get weather for city:", city)
-		return
+		return fmt.Errorf("500")
 	}
 	_ = l.SetTemperatures(wc)
 
@@ -37,4 +48,6 @@ func (s *LocationService) Execute(l *Location) {
 	if err != nil {
 		log.Printf("error to save location: %v\n", l)
 	}
+
+	return nil
 }

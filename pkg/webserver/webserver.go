@@ -16,7 +16,7 @@ type ErrorMessage struct {
 func ReplyRequest(w http.ResponseWriter, statusCode int, msg string) error {
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(statusCode)
 
 	replyMessage := ErrorMessage{Message: msg}
 
@@ -32,6 +32,8 @@ func ReplyRequest(w http.ResponseWriter, statusCode int, msg string) error {
 
 func handlerIndex(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "application/json")
+
 	var data struct {
 		CEP string `json:"cep"`
 	}
@@ -42,19 +44,33 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("CEP API:", data.CEP)
-
 	l, err := domain.NewLocation(data.CEP)
 	if err != nil {
 		log.Println(err)
-		_ = ReplyRequest(w, http.StatusBadRequest, "no zipcode provided")
+		_ = ReplyRequest(w, http.StatusUnprocessableEntity, "invalid zipcode")
 		return
 	}
 
 	repo := domain.NewLocationRepository()
 	serv := domain.NewLocationService(repo)
 
-	serv.Execute(l)
+	err = serv.Execute(l)
+	if err != nil {
+
+		errorCode := err.Error()
+
+		if errorCode == "422" {
+			log.Println("invalid zipcode", l)
+			_ = ReplyRequest(w, http.StatusUnprocessableEntity, "invalid zipcode")
+		} else if errorCode == "404" {
+			log.Println("can not find zipcode")
+			_ = ReplyRequest(w, http.StatusNotFound, "can not find zipcode")
+		} else {
+			log.Println("internal server error")
+			_ = ReplyRequest(w, http.StatusInternalServerError, "internal server error")
+		}
+		return
+	}
 
 	responseData := struct {
 		TempC float64 `json:"temp_c"`
@@ -72,7 +88,6 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(byteResponseData)
 

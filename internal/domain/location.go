@@ -1,6 +1,9 @@
 package domain
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+)
 
 type Location struct {
 	CEP   string
@@ -49,8 +52,8 @@ func (l *Location) GetTempK() float64 {
 
 func (l *Location) SetCEP(cep string) error {
 
-	if len(cep) != 8 {
-		return fmt.Errorf(" invalid zipcode")
+	if match, _ := regexp.MatchString(`^\d{8}$`, cep); !match {
+		return fmt.Errorf("invalid format for cep, use: 12345678")
 	}
 
 	l.CEP = cep
