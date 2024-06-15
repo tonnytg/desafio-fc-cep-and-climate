@@ -1,15 +1,26 @@
+
+# Etapa de build
 FROM golang:1.22.2-alpine as build
 WORKDIR /app
 
+# Copia os arquivos para o diretório de trabalho
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o location main.go
+# Compila o binário
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o location main.go
 
-FROM scratch
+# Etapa final
+FROM golang:1.22.2-alpine
 WORKDIR /app
 
+# Copia o binário compilado para a imagem final
 COPY --from=build /app/location .
 
+# Certifica-se de que o binário tem permissões de execução
+RUN ["chmod", "+x", "/app/location"]
+
+# Define a porta exposta
 EXPOSE 8080
 
-ENTRYPOINT ["./location"]
+# Define o ponto de entrada
+ENTRYPOINT ["/app/location"]

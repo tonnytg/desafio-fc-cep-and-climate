@@ -1,3 +1,22 @@
+### Real Test 404
+POST https://desafio-fc-cep-and-climate-6ehcgk4t5a-uc.a.run.app
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cep": "12345678"
+}
+
+### Real Test
+POST https://desafio-fc-cep-and-climate-6ehcgk4t5a-uc.a.run.app
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cep": "29902555"
+}
+
+###
 GET http://localhost:8080
 Accept: application/json
 

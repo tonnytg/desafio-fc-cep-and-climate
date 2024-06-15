@@ -1,5 +1,14 @@
 # Go Weather by CEP - Google Cloud Run
 
+## To Test
+
+curl -X POST https://desafio-fc-cep-and-climate-6ehcgk4t5a-uc.a.run.app -d '{"cep":"29902555"}'
+
+## Cloud Run Deploy
+
+![deploy-cloudrun.png](deploy-cloudrun.png)
+
+
 ## How to use
 
 create `.env` and set you `WEATHER_API_KEY`
